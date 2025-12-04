@@ -2,6 +2,8 @@ package main
 
 import (
 	"URL_SHORTENER/internal/config"
+	"URL_SHORTENER/internal/lib/logger/sl"
+	"URL_SHORTENER/internal/storage/sqlite"
 	"log/slog"
 	"os"
 )
@@ -19,7 +21,15 @@ func main(){
 
 	log.Info("Starting url-shrtener", slog.String("env", config.Env))
 
-	//TODO: init logger
+	storage, err := sqlite.NewStorage(config.StoragePath)
+	if err != nil {
+		log.Error("Failed to init storage", sl.Err(err))
+		os.Exit(1)
+	}
+
+	_ = storage
+	
+	log.Info("Storage init")
 
 	//TODO: init storage
 
@@ -48,5 +58,3 @@ func setupLogger(env string)*slog.Logger{
 
 	return log 
 }
-//локально хотим видеть текстовые логги
-//в проде или дев хотим видеть json
