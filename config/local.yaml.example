@@ -1,0 +1,8 @@
+env: "local" #loval, dev, prod
+storage_path: "./storage/storage.db"
+http_server:
+  address: "localhost:8082"
+  timeout: 4s
+  idle_tieout: 60s
+  user: "CHANGE_ME"
+  password: "CHANGE_ME"

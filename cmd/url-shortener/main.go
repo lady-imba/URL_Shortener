@@ -2,6 +2,8 @@ package main
 
 import (
 	"URL_SHORTENER/internal/config"
+	"URL_SHORTENER/internal/http-server/handlers/redirect"
+	"URL_SHORTENER/internal/http-server/handlers/url/delete"
 	"URL_SHORTENER/internal/http-server/handlers/url/save"
 	"URL_SHORTENER/internal/http-server/middleware/logger"
 	"URL_SHORTENER/internal/lib/logger/sl"
@@ -38,8 +40,18 @@ func main(){
 	router.Use(middleware.RequestID)
 	router.Use(logger.New(log))
 	router.Use(middleware.Recoverer)
+	router.Use(middleware.URLFormat)
 
-	router.Post("/url", save.New(log, storage))
+	router.Route("/url", func(r chi.Router){
+		r.Use(middleware.BasicAuth("url-shortener", map[string]string{
+			config.HTTPServer.User: config.HTTPServer.Password,
+		}))
+
+		r.Post("/", save.New(log, storage))
+		r.Delete("/{alias}", delete.New(log, storage))
+	})
+
+	router.Get("/{alias}", redirect.New(log, storage))
 
 	log.Info("starting server", slog.String("address", config.Address))
 
